@@ -59,7 +59,7 @@ print(time.time()-t2)
 
 
 #Interpolation Function on the gpu
-def SmoothGpu(points, Mode, doAgenda = True, agendaVerticalAlignment = 0.8, agendaPlacement = 1, agendaOffset = 30,  agendaScale =0.5, agendaSteps = 6, agendaTextScale = 0.7, agendaRoundDataTo = 3):
+def SmoothGpu(points, Mode, doAgenda = True, agendaVerticalAlignment = 0.8, agendaPlacement = 1, agendaOffset = 30,  agendaScale =0.5, agendaSteps = 6, agendaTextScale = 0, agendaRoundDataTo = 3):
     '''agenda vertical alignment: Value between 0 (Top) and 1 (Bottom), so for example middle would be 0.5\n\n
 agenda Placement: 1 - right, 0 - left'''
     t1 = time.time()
