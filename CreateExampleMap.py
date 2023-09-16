@@ -2,7 +2,7 @@ import random
 import json
 from perlin_noise import PerlinNoise
 
-n = 300
+n = 70
 corners = [[53.85405444949857, 20.840097270351063], [56.60326420819254, 27.22864675471188]]
 y = [corners[0][1], corners[1][1]]
 x = [corners[0][0], corners[1][0]]
@@ -22,7 +22,7 @@ my = min(y)
 mx = min(x)
 
 
-noise = PerlinNoise(octaves=7, seed=6241)
+noise = PerlinNoise(octaves=7, seed=986792)
 
 for xi in range(nx):
     for yi in range(ny):

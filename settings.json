@@ -1,0 +1,13 @@
+{
+    "ImageName": "mask1.png",
+    "Mode": 1,
+    "CreateLegend": true,
+    "LegendVerticalAlignment": 0.9,
+    "LegendHorizontalAlignment": "right",
+    "LegendOffsetFromMap": 30,
+    "LegendScale": 0.5,
+    "LegendSteps": 6,
+    "LegendTextScale": 0.7,
+    "LegendRoundDataTo": 1,
+    "LegendUnits": "m/s"
+}

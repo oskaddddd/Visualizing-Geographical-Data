@@ -7,13 +7,25 @@ from Interpolation import createPixel
 
 #Get image name
 imageName = ''
-with open('ImageName.txt', 'r') as f:
-    imageName = f.read()
+#with open('ImageName.txt', 'r') as f:
+#    imageName = f.read()
+#    
+#    imageName = imageName[:imageName.index('.')+1]+'png' \
+#    if imageName[imageName.index('.')+1:] != 'png' \
+#    else imageName
+#    print(imageName)
     
+settings = {}
+    
+with open('settings.json') as f:
+    settings = json.load(f)
+    imageName = settings["ImageName"]
     imageName = imageName[:imageName.index('.')+1]+'png' \
     if imageName[imageName.index('.')+1:] != 'png' \
     else imageName
     print(imageName)
+    
+    
 
 #calibration
 cali = []
@@ -59,9 +71,7 @@ print(time.time()-t2)
 
 
 #Interpolation Function on the gpu
-def SmoothGpu(points, Mode, doAgenda = True, agendaVerticalAlignment = 0.8, agendaPlacement = 1, agendaOffset = 30,  agendaScale =0.5, agendaSteps = 6, agendaTextScale = 0, agendaRoundDataTo = 3):
-    '''agenda vertical alignment: Value between 0 (Top) and 1 (Bottom), so for example middle would be 0.5\n\n
-agenda Placement: 1 - right, 0 - left'''
+def SmoothGpu(points, Mode, doAgenda, legendVerticalAlignment, legendPlacement, legendOffset,  legendScale, legendSteps, legendTextScale, legendRoundDataTo, legendUnits):
     t1 = time.time()
     points=np.array(points)
     creator = createPixel(False)
@@ -77,25 +87,28 @@ agenda Placement: 1 - right, 0 - left'''
     print(time.time()-t, time.time()-t1)
     
     if doAgenda == True:
-        AgendaObj = CreateLegend((l, m), Mode, image.size, agendaScale, agendaSteps,  agendaTextScale, agendaRoundDataTo)
-        print(np.zeros((round((image.size[1]-AgendaObj.shape[0])*agendaVerticalAlignment),  AgendaObj.shape[1], 4)).shape, AgendaObj.shape, np.zeros((round((image.size[1]-AgendaObj.shape[0])*(1-agendaVerticalAlignment)),  AgendaObj.shape[1], 4)).shape,(image.size[1]-AgendaObj.shape[0])*agendaVerticalAlignment, image.size[0])
-        AgendaObj = np.concatenate( ( np.zeros((round((image.size[1]-AgendaObj.shape[0])*agendaVerticalAlignment),  AgendaObj.shape[1], 4), dtype = np.uint8), AgendaObj, np.zeros((image.size[1] - round((image.size[1]-AgendaObj.shape[0])*agendaVerticalAlignment+AgendaObj.shape[0]),  AgendaObj.shape[1], 4),  dtype = np.uint8)))
-        #filer = np.zeros((res.shape[0]-AgendaObj.shape[0], AgendaObj.shape[1], 4))
-        #AgendaObj = np.concatenate((AgendaObj, np.zeros((1, AgendaObj.shape[1], 4))), axis=0)
-        if agendaPlacement == 1:
-            res = np.concatenate((res,np.zeros((AgendaObj.shape[0], agendaOffset, 4)), AgendaObj), axis = 1)
-        elif agendaPlacement == 0:
-            res = np.concatenate((AgendaObj, np.zeros((AgendaObj.shape[0], agendaOffset, 4)), res), axis = 1)
+        AgendaObj = CreateLegend((l, m), Mode, image.size, legendScale, legendSteps,  legendTextScale, legendRoundDataTo, legendUnits)
+        #print(np.zeros((round((image.size[1]-AgendaObj.shape[0])*legendVerticalAlignment),  AgendaObj.shape[1], 4)).shape, AgendaObj.shape, np.zeros((round((image.size[1]-AgendaObj.shape[0])*(1-legendVerticalAlignment)),  AgendaObj.shape[1], 4)).shape,(image.size[1]-AgendaObj.shape[0])*legendVerticalAlignment, image.size[0])
+        AgendaObj = np.concatenate( ( np.zeros((round((image.size[1]-AgendaObj.shape[0])*legendVerticalAlignment),  AgendaObj.shape[1], 4), dtype = np.uint8),\
+        AgendaObj, np.zeros((image.size[1] - round((image.size[1]-AgendaObj.shape[0])*legendVerticalAlignment+AgendaObj.shape[0]),  AgendaObj.shape[1], 4),  dtype = np.uint8)))
+
+
+        if legendPlacement == 1:
+            res = np.concatenate((res,np.zeros((AgendaObj.shape[0], legendOffset, 4)), AgendaObj), axis = 1)
+        elif legendPlacement == 0:
+            res = np.concatenate((AgendaObj, np.zeros((AgendaObj.shape[0], legendOffset, 4)), res), axis = 1)
         
     
     
     return res.astype(np.uint8)
 
-def CreateLegend(lenth, Mode, dimentions, scale, steps, textScale = 0.9, textRound = 1):
+def CreateLegend(lenth, Mode, dimentions, scale, steps, textScale, textRound, units):
     barSize = round(dimentions[1]/(1.5*steps - 0.5)*scale)
     Legend = np.zeros((round(steps*barSize*1.5-barSize*0.5), 3*barSize, 4), dtype=np.uint8)
     
-    textLegend = np.zeros((round(steps*barSize*1.5-barSize*0.5), round(barSize*0.59*textScale*(textRound+len(str(round(lenth[1])))))+10 + (8 if textRound != 0 else 0), 4), dtype=np.uint8)
+    units = ' '+units
+    
+    textLegend = np.zeros((round(steps*barSize*1.5-barSize*0.5), round(barSize*0.59*textScale*(textRound+len(str(round(lenth[1]))+units)))+10 + (8 if textRound != 0 else 0), 4), dtype=np.uint8)
 
     print(barSize*textScale, 'wad')
     imText = PIL.Image.fromarray(textLegend)
@@ -127,7 +140,7 @@ def CreateLegend(lenth, Mode, dimentions, scale, steps, textScale = 0.9, textRou
             
         Legend[round(1.5*barSize*(steps-1-i)):round(1.5*barSize*(steps-1-i)+barSize), :barSize*3] = barsColor
 
-        drawText.text((0,round(1.5*barSize*(steps-1-i)+((barSize-(barSize*textScale))/2))), " "+str(round((i/(steps-1))*(lenth[1]-lenth[0])+lenth[0], textRound)), font=font)
+        drawText.text((0,round(1.5*barSize*(steps-1-i)+((barSize-(barSize*textScale))/2))), " "+str(round((i/(steps-1))*(lenth[1]-lenth[0])+lenth[0], textRound))+units, font=font)
     
     textLegend = np.array(imText)
     out = np.concatenate((Legend, textLegend), axis=1, dtype=np.uint8)
@@ -149,6 +162,7 @@ def ShowPoints(Points):
         imageArr[x["Pixel"][1]][x["Pixel"][0]-1] = [255, 0, 0, 255]
     PIL.Image.fromarray(imageArr).show()
 
-arr = SmoothGpu(mapData, 1)
+arr = SmoothGpu(mapData, settings["Mode"], settings["CreateLegend"], settings["LegendVerticalAlignment"], 0 if settings["LegendHorizontalAlignment"].lower() == "left" else 1,\
+    settings["LegendOffsetFromMap"], settings["LegendScale"], settings["LegendSteps"], settings["LegendTextScale"], settings["LegendRoundDataTo"], settings["LegendUnits"])
 PIL.Image.fromarray(arr).show()
 

@@ -9,3 +9,19 @@ Then either parse the data from an excel file or import your json. And run the d
 This is still an alpha version so its usable but may have alot of bugs and isnt really polished. This is my school project.
 
 To use this tool you need to have python installed and these libs: pillow, tkinter, scypy, pyopencl, numpy, screeninfo, openpyxl
+
+settings.json:
+-ImageName: The name of the mask image.
+-Mode:
+    0 - Black and White (white - high, black - low)
+    1 - RGB (Red - high, Green - mid, Blue - low)
+    2 - RG (Green - high, Red - Low)
+    3 - RB (Red - high, Blue - low)
+-CreateAgenda: True or false, weather you want to create a legend.
+-AgendaVerticalAlignment: A value from 0 to 1, where 0 is the top of the image, 1 is bottom and for example 0.5 is the middle.
+-AgendaHorizontalAlignment: Left or right.
+-AgendaOffsetFromMap: How many pixels the legend is offset from the map.
+-AgendaScale: How big the legend is compared to the map image, for example with a value of 0.5, the legend would be half as big as the map.
+-AgendaSteps: How many sections will the agenda be devided into.
+-AgendaTextScale: How big the text is compared to a single section in the legend.
+-AgendaRoundDataTo: How many digits to leave after the comma in agenda text.
