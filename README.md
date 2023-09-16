@@ -25,3 +25,5 @@ settings.json:
 -AgendaSteps: How many sections will the agenda be devided into.
 -AgendaTextScale: How big the text is compared to a single section in the legend.
 -AgendaRoundDataTo: How many digits to leave after the comma in agenda text.
+
+Compiled version download: https://mega.nz/file/LJdCgT4a#Ty-Lf7OvDl6xyg6ocmzBWN4al5blQtY2x7JM0t7WoPA
