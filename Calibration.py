@@ -11,8 +11,8 @@ monitor = (monitor.width, monitor.height)
 
 print(monitor)
 imageName = ''
-with open('ImageName.txt', 'r') as f:
-    imageName = f.read()
+with open('settings.json', 'r') as f:
+    imageName = json.load(f)["ImageName"]
     imageName = imageName[:imageName.index('.')+1]+'png' \
     if imageName[imageName.index('.')+1:] != 'png' \
     else imageName
