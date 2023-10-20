@@ -5,17 +5,14 @@ from tkinter import *
 import json
 from screeninfo import get_monitors
 import time
+import ReadSettings
 
 monitor = get_monitors()[0]
 monitor = (monitor.width, monitor.height)
 
 print(monitor)
-imageName = ''
-with open('settings.json', 'r') as f:
-    imageName = json.load(f)["ImageName"]
-    imageName = imageName[:imageName.index('.')+1]+'png' \
-    if imageName[imageName.index('.')+1:] != 'png' \
-    else imageName
+imageName = ReadSettings.Settings(True)["ImageName"]
+
 
 defImage = PIL.Image.open(imageName).convert('RGBA')
 imageScale = min((monitor[1]-200)/defImage.size[1], (monitor[0]-500)/defImage.size[0])
@@ -31,7 +28,7 @@ print("Loaded image into array")
 print("Prepearing GUI... This might take abit")
 
 root = Tk()
-root.minsize(550, 250)
+root.minsize(700, 400)
 root.title("Image to real world calibration")
 
 imTK = PIL.ImageTk.PhotoImage(image)
@@ -104,8 +101,10 @@ def resizeImage(e):
     global imageArr
     global imTK
     global selected
+    global Im
+    
 
-    temp = min((e.height)/defImage.size[1], (e.width)/defImage.size[0])
+    temp = min((e.height-200)/defImage.size[1], (e.width-500)/defImage.size[0])
     if temp == imageScale:
         return
     
@@ -113,14 +112,14 @@ def resizeImage(e):
     
     selected = [round(selected[0] * (temp/imageScale)), round(selected[1] * (temp/imageScale))]
     image = defImage.resize((round(defImage.size[0]*temp), round(defImage.size[1]*temp)))
-    imageArr = np.array(image)
-
-    red = np.array([255, 0, 0, 255])
-    imageArr[selected[1]][selected[0]] = red
-    imageArr[selected[1]+1][selected[0]] = red
-    imageArr[selected[1]-1][selected[0]] = red
-    imageArr[selected[1]][selected[0]+1] = red
-    imageArr[selected[1]][selected[0]-1] = red
+    #imageArr = np.array(image) 
+    #
+    #red = np.array([255, 0, 0, 255])
+    #imageArr[selected[1]][selected[0]] = red
+    #imageArr[selected[1]+1][selected[0]] = red
+    #imageArr[selected[1]-1][selected[0]] = red
+    #imageArr[selected[1]][selected[0]+1] = red
+    #imageArr[selected[1]][selected[0]-1] = red
 
     imTK = PIL.ImageTk.PhotoImage(PIL.Image.fromarray(imageArr))
     Im["image"] = imTK
@@ -226,7 +225,7 @@ print("Loaded widgets")
 
 root.bind('<Button 1>',Selected)
 #root.bind('<ButtonRelease 1>', click)
-#root.bind('<Configure>', resizeImage)
+root.bind('<Configure>', resizeImage)
 root.bind('<Right>', moveRight)
 root.bind('<Left>', moveLeft)
 root.bind('<Up>', moveUp)

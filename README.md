@@ -23,7 +23,12 @@ settings.json:
 -AgendaOffsetFromMap: How many pixels the legend is offset from the map.
 -AgendaScale: How big the legend is compared to the map image, for example with a value of 0.5, the legend would be half as big as the map.
 -AgendaSteps: How many sections will the agenda be devided into.
+-SectionMap: true or false, if true will section the map into a sections based on the value of points. The amount of sections is determined by the AgendaSteps setting.
 -AgendaTextScale: How big the text is compared to a single section in the legend.
 -AgendaRoundDataTo: How many digits to leave after the comma in agenda text.
+
+-DataType: grid or random, depends if your geographical data is in a grid or scatered randomly.
+-Computation: cpu or opencl, not all data types might support opencl computation. You need to have a device which supports opencl and has opencl drivers installed.
+-OpenCl interactive: true or false, if true and using the opencl computation mode allows you to choose which device to perform the computations on, if false and using opencl computation mode, it will use the first opencl compatible device. This setting doesnt matter if using cpu computation mode.
 
 Compiled version download: https://mega.nz/file/LJdCgT4a#Ty-Lf7OvDl6xyg6ocmzBWN4al5blQtY2x7JM0t7WoPA

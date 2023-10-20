@@ -3,30 +3,25 @@ import PIL.Image, PIL.ImageDraw, PIL.ImageFont
 import numpy as np
 import json
 import time
-from Interpolation import createPixel
+from Interpolation import interpolateRandomGpu as createPixel
+import ReadSettings
 
 #Get image name
-imageName = ''
-#with open('ImageName.txt', 'r') as f:
-#    imageName = f.read()
-#    
+
+
+    
+settings = ReadSettings.Settings(True)
+imageName = settings["ImageName"]
+#with open('settings.json') as f:
+#    settings = json.load(f)
+#    imageName = settings["ImageName"]
 #    imageName = imageName[:imageName.index('.')+1]+'png' \
 #    if imageName[imageName.index('.')+1:] != 'png' \
 #    else imageName
 #    print(imageName)
+#    
     
-settings = {}
-    
-with open('settings.json') as f:
-    settings = json.load(f)
-    imageName = settings["ImageName"]
-    imageName = imageName[:imageName.index('.')+1]+'png' \
-    if imageName[imageName.index('.')+1:] != 'png' \
-    else imageName
-    print(imageName)
-    
-    
-
+print(settings)
 #calibration
 cali = []
 
@@ -74,7 +69,7 @@ print(time.time()-t2)
 def SmoothGpu(points, Mode, doAgenda, legendVerticalAlignment, legendPlacement, legendOffset,  legendScale, legendSteps, legendTextScale, legendRoundDataTo, legendUnits):
     t1 = time.time()
     points=np.array(points)
-    creator = createPixel(False)
+    creator = createPixel(True)
     print(time.time()-t1)
     t1 = time.time()
     creator.createPixelBuffer(image.size, Image=image)

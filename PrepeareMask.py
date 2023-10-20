@@ -3,6 +3,7 @@ import numpy as np
 import tkinter as tk
 import PIL.ImageTk
 import json
+import ReadSettings
 
 
 
@@ -10,12 +11,9 @@ import json
 #If inverse = True, will select the above the threashold (lighter regions), if False will select bellow threashold (Darker regions)
 inverse = False
 threashhold = 0
-imageName = ''
-settings = {}
-with open('settings.json') as f:
-    settings = json.load(f)
-    imageName = settings["ImageName"]
-    print(imageName)
+
+settings = ReadSettings.Settings(False)
+imageName = settings["ImageName"]
 
 image = PIL.Image.open(imageName).convert('RGBA')
 defImageArr = np.array(image)

@@ -2,10 +2,12 @@ import pyopencl as cl
 import numpy as np
 from scipy.spatial import Delaunay
 import math
+import os
+os.environ['PYOPENCL_NO_CACHE'] = '1'
 
 
 
-class createPixel():
+class interpolateRandomGpu():
     def __init__(self, interactive = False) -> None:
         self.ctx = cl.create_some_context(interactive=interactive)
         self.queue = cl.CommandQueue(self.ctx)
@@ -173,3 +175,75 @@ class createPixel():
     def Blur(self):
         source = '''kernel void Blur(
             '''
+
+class interpolateRandomNumpy():
+    def createPixels(self, resolution = None, Points = None, Image =None) -> list: #width, height
+        Dots = []
+        if resolution != None and Points == None:
+            x_coords = np.arange(resolution[0])
+            y_coords = np.arange(resolution[1])
+            xx, yy = np.meshgrid(x_coords, y_coords)
+            Dots = np.dstack((xx, yy, np.zeros_like(xx)))
+            self.res = np.ones((resolution[1], resolution[0], 4), dtype=Dots.dtype)
+        
+        self.pixels = Dots
+        self.image = Image
+        return Dots
+
+    def createTriangles(self, points, Mode = 0 ,showTriangles = False):
+        '''Modes:\n
+        0 - Black and White (white - high, black - low)\n
+        1 - RGB (Red - high, Green - mid, Blue - low)\n
+        2 - RG (Green - high, Red - Low)\n
+        3 - RB (Red - high, Blue - low)'''
+        #ogPoints = points.copy()
+        p = points[:, 2]
+        points = points[:, :2]
+        
+        m = math.ceil(max(p))
+        l = math.floor(min(p))
+
+        tri = Delaunay(points)
+        
+        output = np.empty((tri.simplices.shape[0], 3, 3), dtype=self.pixels.dtype)
+
+        for i, simplex in enumerate(tri.simplices):
+            triangle = [np.array([points[index][0], points[index][1], p[index]]) for index in simplex]
+            output[i] = triangle
+        #print(output)
+
+        #output = np.array(output)
+        
+        self.triangles = output
+        return (output, m, l)
+
+    def compute():
+        def Computation():
+            pass
+        for x in range(3):
+            pass
+    
+class interpolateSquaresNumpy():
+    def createPixels(self, resolution = None, Points = None, Image =None) -> list: #width, height
+        Dots = []
+
+        if resolution != None and Points == None:
+            x_coords = np.arange(resolution[0])
+            y_coords = np.arange(resolution[1])
+            xx, yy = np.meshgrid(x_coords, y_coords)
+            Dots = np.dstack((xx, yy, np.zeros_like(xx)))
+            self.res = np.ones((resolution[1], resolution[0], 4), dtype=Dots.dtype)
+        
+        self.pixels = Dots-1
+        self.image = Image-1
+        return Dots
+    def compute(self):
+        sizey = len(Dots)
+        sizex = len(Dots[0])
+        for y in range(sizey):
+            for x in range(sizex):
+                ps = [self.Dots[y][x], self.Dots[y][x+1], self.Dots[y+1][x], self.Dots[y+1][x+1]]
+                
+                
+
+
