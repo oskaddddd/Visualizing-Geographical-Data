@@ -176,21 +176,10 @@ class interpolateRandomGpu():
         source = '''kernel void Blur(
             '''
 
-class interpolateRandomNumpy():
-    def createPixels(self, resolution = None, Points = None, Image =None) -> list: #width, height
-        Dots = []
-        if resolution != None and Points == None:
-            x_coords = np.arange(resolution[0])
-            y_coords = np.arange(resolution[1])
-            xx, yy = np.meshgrid(x_coords, y_coords)
-            Dots = np.dstack((xx, yy, np.zeros_like(xx)))
-            self.res = np.ones((resolution[1], resolution[0], 4), dtype=Dots.dtype)
-        
-        self.pixels = Dots
-        self.image = Image
-        return Dots
+class interpolateRandomCpu():
 
-    def createTriangles(self, points, Mode = 0 ,showTriangles = False):
+
+    def createTriangles(self, points, Resolution, Mode = 0 ,showTriangles = False):
         '''Modes:\n
         0 - Black and White (white - high, black - low)\n
         1 - RGB (Red - high, Green - mid, Blue - low)\n
@@ -205,13 +194,19 @@ class interpolateRandomNumpy():
 
         tri = Delaunay(points)
         
-        output = np.empty((tri.simplices.shape[0], 3, 3), dtype=self.pixels.dtype)
+        output = np.empty((tri.simplices.shape[0], 3, 3), dtype=np.uint8)
 
         for i, simplex in enumerate(tri.simplices):
             triangle = [np.array([points[index][0], points[index][1], p[index]]) for index in simplex]
             output[i] = triangle
-        #print(output)
-
+        print(output)
+        for triangle in output:
+            triangle = triangle[triangle[:, 0].argsort()][::-1]
+            
+            k0 = (triangle[1][1]-triangle[2][1])/(triangle[1][0]-triangle[2][0])
+            k2 = (triangle[1][1]-triangle[2][1])/(triangle[1][0]-triangle[2][0])
+            print(1/0 == inf)
+           
         #output = np.array(output)
         
         self.triangles = output

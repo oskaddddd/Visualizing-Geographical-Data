@@ -3,7 +3,7 @@ import PIL.Image, PIL.ImageDraw, PIL.ImageFont
 import numpy as np
 import json
 import time
-from Interpolation import interpolateRandomGpu as createPixel
+import Interpolation
 import ReadSettings
 
 #Get image name
@@ -12,14 +12,7 @@ import ReadSettings
     
 settings = ReadSettings.Settings(True)
 imageName = settings["ImageName"]
-#with open('settings.json') as f:
-#    settings = json.load(f)
-#    imageName = settings["ImageName"]
-#    imageName = imageName[:imageName.index('.')+1]+'png' \
-#    if imageName[imageName.index('.')+1:] != 'png' \
-#    else imageName
-#    print(imageName)
-#    
+
     
 print(settings)
 #calibration
@@ -69,7 +62,7 @@ print(time.time()-t2)
 def SmoothGpu(points, Mode, doAgenda, legendVerticalAlignment, legendPlacement, legendOffset,  legendScale, legendSteps, legendTextScale, legendRoundDataTo, legendUnits):
     t1 = time.time()
     points=np.array(points)
-    creator = createPixel(True)
+    creator = Interpolation.interpolateRandomGpu(True)
     print(time.time()-t1)
     t1 = time.time()
     creator.createPixelBuffer(image.size, Image=image)
@@ -96,6 +89,13 @@ def SmoothGpu(points, Mode, doAgenda, legendVerticalAlignment, legendPlacement, 
     
     
     return res.astype(np.uint8)
+
+def InterpolateRandomCpu(points):
+    points = np.array(points)
+    create = Interpolation.interpolateRandomCpu()
+    #print(create.createPixels(image.size, Image=image))
+    create.createTriangles(points, image.size)
+    
 
 def CreateLegend(lenth, Mode, dimentions, scale, steps, textScale, textRound, units):
     barSize = round(dimentions[1]/(1.5*steps - 0.5)*scale)
@@ -156,8 +156,8 @@ def ShowPoints(Points):
         imageArr[x["Pixel"][1]][x["Pixel"][0]+1] = [255, 0, 0, 255]
         imageArr[x["Pixel"][1]][x["Pixel"][0]-1] = [255, 0, 0, 255]
     PIL.Image.fromarray(imageArr).show()
-
-arr = SmoothGpu(mapData, settings["Mode"], settings["CreateLegend"], settings["LegendVerticalAlignment"], 0 if settings["LegendHorizontalAlignment"].lower() == "left" else 1,\
-    settings["LegendOffsetFromMap"], settings["LegendScale"], settings["LegendSteps"], settings["LegendTextScale"], settings["LegendRoundDataTo"], settings["LegendUnits"])
-PIL.Image.fromarray(arr).show()
+cpuArr = InterpolateRandomCpu(mapData)
+#arr = SmoothGpu(mapData, settings["Mode"], settings["CreateLegend"], settings["LegendVerticalAlignment"], 0 if settings["LegendHorizontalAlignment"].lower() == "left" else 1,\
+#    settings["LegendOffsetFromMap"], settings["LegendScale"], settings["LegendSteps"], settings["LegendTextScale"], settings["LegendRoundDataTo"], settings["LegendUnits"])
+PIL.Image.fromarray(cpuArr).show()
 
