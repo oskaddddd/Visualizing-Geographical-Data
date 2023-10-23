@@ -203,10 +203,35 @@ class interpolateRandomCpu():
         for triangle in output:
             triangle = triangle[triangle[:, 0].argsort()][::-1]
             
-            k0 = (triangle[1][1]-triangle[2][1])/(triangle[1][0]-triangle[2][0])
-            k2 = (triangle[1][1]-triangle[2][1])/(triangle[1][0]-triangle[2][0])
-            print(1/0 == inf)
-           
+            k01 = (triangle[1][1]-triangle[2][1])/(triangle[1][0]-triangle[2][0])
+            k12 = (triangle[1][1]-triangle[2][1])/(triangle[1][0]-triangle[2][0])
+            k02 = (triangle[0][1]-triangle[2][1])/(triangle[0][0]-triangle[2][0])
+
+            r01 =None 
+            r12= None
+
+            if k01 != np.inf:
+                r01 = triangle[1][1]-triangle[1][0]*k01
+            if k12 != np.inf:
+                r12 = triangle[1][1]-triangle[1][0]*k12
+            if k02 != np.inf:
+                r02 = triangle[1][1]-triangle[1][0]*k12
+            
+            #x, y1, y2, y3
+            ranges = np.empty(shape = (triangle[2][0] - triangle[0][0], 3))
+
+            if k01 == np.inf:
+                ranges[0] = np.array([triangle[0][0], triangle[0][1], triangle[1][1]])
+            if k12 == np.inf:
+                ranges[ranges.shape[0]-1] = np.array([triangle[2][0], triangle[1][1], triangle[2][1]])
+            if k02 == np.inf:
+                ranges[ranges.shape[0]-1] = np.array([triangle[2][0], triangle[1][1], triangle[2][1]])
+
+            for x in range(triangle[1][0], triangle[0][0])
+                rang = np.empty(3)
+                rang[0] = x
+                rang[1] = 
+
         #output = np.array(output)
         
         self.triangles = output
