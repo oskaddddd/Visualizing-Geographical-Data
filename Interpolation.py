@@ -260,7 +260,7 @@ class interpolateRandomCpu():
                     b = abs(triangle[0][0]*(y-triangle[2][1]) + x*(triangle[2][1]-triangle[0][1]) + triangle[2][0]*(triangle[0][1]-y))
                     c = abs(x*(triangle[1][1]-triangle[2][1]) + triangle[1][0]*(triangle[2][1]-y) + triangle[2][0]*(y-triangle[1][1]))
                     val = (triangle[2][2]*a+triangle[1][2]*b+triangle[0][2]*c)/(a+b+c)
-                    imageOutput[x][y] = np.array([255, 0, 0, 255])
+                    imageOutput[y][x] = np.array([255, 0, 0, 255])
 
                 #ranges[i] = np.array((x, math.ceil(k01*x+r01), math.floor(k02*x+r02)))
                 i+=1
@@ -274,7 +274,7 @@ class interpolateRandomCpu():
                     b = abs(triangle[0][0]*(y-triangle[2][1]) + x*(triangle[2][1]-triangle[0][1]) + triangle[2][0]*(triangle[0][1]-y))
                     c = abs(x*(triangle[1][1]-triangle[2][1]) + triangle[1][0]*(triangle[2][1]-y) + triangle[2][0]*(y-triangle[1][1]))
                     val = (triangle[2][2]*a+triangle[1][2]*b+triangle[0][2]*c)/(a+b+c)
-                    imageOutput[x][y] = np.array([255, 0, 0, 255])
+                    imageOutput[y][x] = np.array([255, 0, 0, 255])
                 #ranges[i] = np.array((x, math.ceil(k12*x+r12), math.floor(k02*x+r02)))
                 i+=1
             #print(triangle)
