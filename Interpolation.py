@@ -179,7 +179,9 @@ class interpolateRandomGpu():
 class interpolateRandomCpu():
 
 
-    def createTriangles(self, points, Resolution, Mode = 0 ,showTriangles = False):
+
+
+    def createTriangles(self, points, resolution, Mode = 0 ,showTriangles = False):
         '''Modes:\n
         0 - Black and White (white - high, black - low)\n
         1 - RGB (Red - high, Green - mid, Blue - low)\n
@@ -195,6 +197,7 @@ class interpolateRandomCpu():
         tri = Delaunay(points)
         
         output = np.empty((tri.simplices.shape[0], 3, 3), dtype=np.int8)
+        imageOutput = np.zeros(shape=(resolution[1], resolution[0], 4), dtype = np.uint8)
 
         for i, simplex in enumerate(tri.simplices):
             triangle = [np.array([points[index][0], points[index][1], p[index]]) for index in simplex]
@@ -231,29 +234,48 @@ class interpolateRandomCpu():
                 (triangle[1][0] if triangle[1][0] >= 0 else 0), \
                 (triangle[2][0] if triangle[2][0] >= 0 else 0)]
             #x, y01/y02, y02
-            ranges = np.zeros(shape = (xRanges[2]-xRanges[0]+1, 3), dtype=np.uint8)
+            #ranges = np.zeros(shape = (xRanges[2]-xRanges[0]+1, 3), dtype=np.uint8)
 
             if k01 == None:
-                ranges[0] = np.array([triangle[0][0], triangle[0][1], triangle[1][1]])
+                #ranges[0] = np.array([triangle[0][0], triangle[0][1], triangle[1][1]])
+                yList = np.arange(triangle[0][1], triangle[1][1])
+
+                for y in yList:
+                    val = triangle[0][2]
+                    imageOutput[y][triangle[1][0]] = np.array([val, val, val, 255])
             if k12 == None:
-                ranges[ranges.shape[0]-1] = np.array([triangle[2][0], triangle[1][1], triangle[2][1]])
-            
+                yList = np.arange(triangle[1][1], triangle[2][1])
+
+                for y in yList:
+                    val = triangle[0][2]
+                    imageOutput[y][triangle[1][0]] = np.array([val, val, val, 255])
             i = 0
 
             for x in range(xRanges[0], xRanges[1]):
-                yList = np.arange(start=math.ceil(k01*x+r01), stop = math.floor(k02*x+r02))
+                yList = np.arange(start=math.ceil(k01*x+r01), stop = math.floor(k02*x+k02))
 
                 for y in yList:
-                    a  =abs(triangle[0][0]*(triangle[1][1]-tri[2][1]) + tri[1][0]*(tri[7]-tri[1]) + tri[6]* (tri[1]-tri[4]))
-                    a1 =abs(g0*(tri[4]-tri[7]) + tri[3]*(tri[7]-g1) + tri[6]* (g1-tri[4]))
-                    a2 =abs(tri[0]*(g1-tri[7]) + g0*(tri[7]-tri[1]) + tri[6]* (tri[1]-g1))
-                    a3 =abs(tri[0]*(tri[4]-g1) + tri[3]*(g1-tri[1]) + g0* (tri[1]-tri[4]))
 
+                    a = abs(triangle[0][0]*(triangle[1][1]-y) + triangle[1][0]*(y-triangle[0][1]) + x*(triangle[0][1]-triangle[1][1]))
+                    b = abs(triangle[0][0]*(y-triangle[2][1]) + x*(triangle[2][1]-triangle[0][1]) + triangle[2][0]*(triangle[0][1]-y))
+                    c = abs(x*(triangle[1][1]-triangle[2][1]) + triangle[1][0]*(triangle[2][1]-y) + triangle[2][0]*(y-triangle[1][1]))
+                    val = (triangle[2][2]*a+triangle[1][2]*b+triangle[0][2]*c)/(a+b+c)
+                    imageOutput[x][y] = np.array([255, 0, 0, 255])
 
-                ranges[i] = np.array((x, math.ceil(k01*x+r01), math.floor(k02*x+r02)))
+                #ranges[i] = np.array((x, math.ceil(k01*x+r01), math.floor(k02*x+r02)))
                 i+=1
             for x in range(xRanges[1], xRanges[2]):
-                ranges[i] = np.array((x, math.ceil(k12*x+r12), math.floor(k02*x+r02)))
+                yList = np.arange(start=math.ceil(k12*x+r12), stop = math.floor(k02*x+r02))
+
+                for y in yList:
+
+                    
+                    a = abs(triangle[0][0]*(triangle[1][1]-y) + triangle[1][0]*(y-triangle[0][1]) + x*(triangle[0][1]-triangle[1][1]))
+                    b = abs(triangle[0][0]*(y-triangle[2][1]) + x*(triangle[2][1]-triangle[0][1]) + triangle[2][0]*(triangle[0][1]-y))
+                    c = abs(x*(triangle[1][1]-triangle[2][1]) + triangle[1][0]*(triangle[2][1]-y) + triangle[2][0]*(y-triangle[1][1]))
+                    val = (triangle[2][2]*a+triangle[1][2]*b+triangle[0][2]*c)/(a+b+c)
+                    imageOutput[x][y] = np.array([255, 0, 0, 255])
+                #ranges[i] = np.array((x, math.ceil(k12*x+r12), math.floor(k02*x+r02)))
                 i+=1
             #print(triangle)
             #print(ranges, triangle, r01, r12, r02, k01)
@@ -264,14 +286,9 @@ class interpolateRandomCpu():
         #output = np.array(output)
         
         self.triangles = output
-        return (output, m, l)
+        return imageOutput
 
-    def compute():
-        def Computation():
-            pass
-        for x in range(3):
-            pass
-    
+
 class interpolateSquaresNumpy():
     def createPixels(self, resolution = None, Points = None, Image =None) -> list: #width, height
         Dots = []
