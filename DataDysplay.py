@@ -156,7 +156,10 @@ def ShowPoints(Points):
         imageArr[x["Pixel"][1]][x["Pixel"][0]+1] = [255, 0, 0, 255]
         imageArr[x["Pixel"][1]][x["Pixel"][0]-1] = [255, 0, 0, 255]
     PIL.Image.fromarray(imageArr).show()
+
+t = time.time()
 cpuArr = InterpolateRandomCpu(mapData)
+print(time.time()-t)
 #arr = SmoothGpu(mapData, settings["Mode"], settings["CreateLegend"], settings["LegendVerticalAlignment"], 0 if settings["LegendHorizontalAlignment"].lower() == "left" else 1,\
 #    settings["LegendOffsetFromMap"], settings["LegendScale"], settings["LegendSteps"], settings["LegendTextScale"], settings["LegendRoundDataTo"], settings["LegendUnits"])
 PIL.Image.fromarray(cpuArr).show()

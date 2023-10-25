@@ -194,43 +194,72 @@ class interpolateRandomCpu():
 
         tri = Delaunay(points)
         
-        output = np.empty((tri.simplices.shape[0], 3, 3), dtype=np.uint8)
+        output = np.empty((tri.simplices.shape[0], 3, 3), dtype=np.int8)
 
         for i, simplex in enumerate(tri.simplices):
             triangle = [np.array([points[index][0], points[index][1], p[index]]) for index in simplex]
             output[i] = triangle
-        print(output)
+
         for triangle in output:
-            triangle = triangle[triangle[:, 0].argsort()][::-1]
+            triangle = triangle[triangle[:, 0].argsort()][::1]
             
-            k01 = (triangle[1][1]-triangle[2][1])/(triangle[1][0]-triangle[2][0])
-            k12 = (triangle[1][1]-triangle[2][1])/(triangle[1][0]-triangle[2][0])
-            k02 = (triangle[0][1]-triangle[2][1])/(triangle[0][0]-triangle[2][0])
+            
+            if triangle[1][0]-triangle[0][0]!= 0: 
+                k01 = (triangle[1][1]-triangle[0][1])/(triangle[1][0]-triangle[0][0])
+            else: k01 = None
+            
+            if triangle[1][0]-triangle[2][0]!= 0: 
+                k12 = ((triangle[1][1]-triangle[2][1])/(triangle[1][0]-triangle[2][0])) 
+            else: k12 = None
+            
+            if triangle[2][0]-triangle[0][0]!= 0: 
+                k02 = ((triangle[0][1]-triangle[2][1])/(triangle[0][0]-triangle[2][0])) 
+            else: k02 = None
 
-            r01 =None 
-            r12= None
+            r01 = 0
+            r12 = 0
+            r02 = 0
 
-            if k01 != np.inf:
+            if k01 != None:
                 r01 = triangle[1][1]-triangle[1][0]*k01
-            if k12 != np.inf:
+            if k12 != None:
                 r12 = triangle[1][1]-triangle[1][0]*k12
-            if k02 != np.inf:
-                r02 = triangle[1][1]-triangle[1][0]*k12
-            
-            #x, y1, y2, y3
-            ranges = np.empty(shape = (triangle[2][0] - triangle[0][0], 3))
+            if k02 != None:
+                r02 = triangle[0][1]-triangle[0][0]*k02
 
-            if k01 == np.inf:
+            xRanges = [(triangle[0][0] if triangle[0][0] >= 0 else 0), \
+                (triangle[1][0] if triangle[1][0] >= 0 else 0), \
+                (triangle[2][0] if triangle[2][0] >= 0 else 0)]
+            #x, y01/y02, y02
+            ranges = np.zeros(shape = (xRanges[2]-xRanges[0]+1, 3), dtype=np.uint8)
+
+            if k01 == None:
                 ranges[0] = np.array([triangle[0][0], triangle[0][1], triangle[1][1]])
-            if k12 == np.inf:
+            if k12 == None:
                 ranges[ranges.shape[0]-1] = np.array([triangle[2][0], triangle[1][1], triangle[2][1]])
-            if k02 == np.inf:
-                ranges[ranges.shape[0]-1] = np.array([triangle[2][0], triangle[1][1], triangle[2][1]])
+            
+            i = 0
 
-            for x in range(triangle[1][0], triangle[0][0])
-                rang = np.empty(3)
-                rang[0] = x
-                rang[1] = 
+            for x in range(xRanges[0], xRanges[1]):
+                yList = np.arange(start=math.ceil(k01*x+r01), stop = math.floor(k02*x+r02))
+
+                for y in yList:
+                    a  =abs(triangle[0][0]*(triangle[1][1]-tri[2][1]) + tri[1][0]*(tri[7]-tri[1]) + tri[6]* (tri[1]-tri[4]))
+                    a1 =abs(g0*(tri[4]-tri[7]) + tri[3]*(tri[7]-g1) + tri[6]* (g1-tri[4]))
+                    a2 =abs(tri[0]*(g1-tri[7]) + g0*(tri[7]-tri[1]) + tri[6]* (tri[1]-g1))
+                    a3 =abs(tri[0]*(tri[4]-g1) + tri[3]*(g1-tri[1]) + g0* (tri[1]-tri[4]))
+
+
+                ranges[i] = np.array((x, math.ceil(k01*x+r01), math.floor(k02*x+r02)))
+                i+=1
+            for x in range(xRanges[1], xRanges[2]):
+                ranges[i] = np.array((x, math.ceil(k12*x+r12), math.floor(k02*x+r02)))
+                i+=1
+            #print(triangle)
+            #print(ranges, triangle, r01, r12, r02, k01)
+            
+
+            
 
         #output = np.array(output)
         
