@@ -250,10 +250,11 @@ class interpolateRandomCpu():
                     val = triangle[0][2]
                     imageOutput[y][triangle[1][0]] = np.array([val, val, val, 255])
             i = 0
+            print(xRanges)
 
             for x in range(xRanges[0], xRanges[1]):
                 yList = np.arange(start=math.ceil(k01*x+r01), stop = math.floor(k02*x+k02))
-
+                
                 for y in yList:
 
                     a = abs(triangle[0][0]*(triangle[1][1]-y) + triangle[1][0]*(y-triangle[0][1]) + x*(triangle[0][1]-triangle[1][1]))
