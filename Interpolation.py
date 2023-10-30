@@ -189,6 +189,8 @@ class interpolateRandomCpu():
         3 - RB (Red - high, Blue - low)'''
         #ogPoints = points.copy()
         p = points[:, 2]
+        
+        
         points = points[:, :2]
         
         m = math.ceil(max(p))
@@ -196,13 +198,15 @@ class interpolateRandomCpu():
 
         tri = Delaunay(points)
         
-        output = np.empty((tri.simplices.shape[0], 3, 3), dtype=np.int8)
+        output = np.empty((tri.simplices.shape[0], 3, 3), dtype=np.int32)
         imageOutput = np.zeros(shape=(resolution[1], resolution[0], 4), dtype = np.uint8)
 
         for i, simplex in enumerate(tri.simplices):
             triangle = [np.array([points[index][0], points[index][1], p[index]]) for index in simplex]
             output[i] = triangle
 
+        print(output, points)
+        
         for triangle in output:
             triangle = triangle[triangle[:, 0].argsort()][::1]
             
@@ -230,21 +234,29 @@ class interpolateRandomCpu():
             if k02 != None:
                 r02 = triangle[0][1]-triangle[0][0]*k02
 
-            xRanges = [(triangle[0][0] if triangle[0][0] >= 0 else 0), \
-                (triangle[1][0] if triangle[1][0] >= 0 else 0), \
-                (triangle[2][0] if triangle[2][0] >= 0 else 0)]
+            def middle(a, b, c):
+                if b>a and b<c:
+                    return b
+                elif b<a:
+                    return a
+                else: return c
+
+            xRanges = [middle(0, triangle[0][0], resolution[0]-1), \
+                    middle(0, triangle[1][0], resolution[0]-1), \
+                    middle(0, triangle[2][0], resolution[0]-1)]
             #x, y01/y02, y02
             #ranges = np.zeros(shape = (xRanges[2]-xRanges[0]+1, 3), dtype=np.uint8)
 
             if k01 == None:
                 #ranges[0] = np.array([triangle[0][0], triangle[0][1], triangle[1][1]])
-                yList = np.arange(triangle[0][1], triangle[1][1])
+                yList = np.arange(middle(0, triangle[0][1], resolution[1]-1), middle(0, triangle[1][1], resolution[1]-1))
 
                 for y in yList:
                     val = triangle[0][2]
                     imageOutput[y][triangle[1][0]] = np.array([val, val, val, 255])
             if k12 == None:
-                yList = np.arange(triangle[1][1], triangle[2][1])
+                yList = np.arange(middle(0, triangle[1][1], resolution[1]-1), middle(0, triangle[2][1], resolution[1]-1))
+                print(yList)
 
                 for y in yList:
                     val = triangle[0][2]
@@ -253,7 +265,7 @@ class interpolateRandomCpu():
             print(xRanges)
 
             for x in range(xRanges[0], xRanges[1]):
-                yList = np.arange(start=math.ceil(k01*x+r01), stop = math.floor(k02*x+k02))
+                yList = np.arange(start=middle(0, math.ceil(k01*x+r01), resolution[1]-1), stop = middle(0, math.ceil(k02*x+r02), resolution[1]-1))
                 
                 for y in yList:
 
@@ -261,12 +273,12 @@ class interpolateRandomCpu():
                     b = abs(triangle[0][0]*(y-triangle[2][1]) + x*(triangle[2][1]-triangle[0][1]) + triangle[2][0]*(triangle[0][1]-y))
                     c = abs(x*(triangle[1][1]-triangle[2][1]) + triangle[1][0]*(triangle[2][1]-y) + triangle[2][0]*(y-triangle[1][1]))
                     val = (triangle[2][2]*a+triangle[1][2]*b+triangle[0][2]*c)/(a+b+c)
-                    imageOutput[y][x] = np.array([255, 0, 0, 255])
+                    imageOutput[y][x] = np.array([val, val, val, 255])
 
                 #ranges[i] = np.array((x, math.ceil(k01*x+r01), math.floor(k02*x+r02)))
                 i+=1
             for x in range(xRanges[1], xRanges[2]):
-                yList = np.arange(start=math.ceil(k12*x+r12), stop = math.floor(k02*x+r02))
+                yList = np.arange(start=middle(0, math.ceil(k12*x+r12), resolution[1]-1), stop = middle(0, math.ceil(k02*x+r02), resolution[1]-1))
 
                 for y in yList:
 
