@@ -9,5 +9,6 @@
     "LegendSteps": 6,
     "LegendTextScale": 0.7,
     "LegendRoundDataTo": 1,
-    "LegendUnits": "m/s"
+    "LegendUnits": "m/s",
+    "Computation": "cpu"
 }

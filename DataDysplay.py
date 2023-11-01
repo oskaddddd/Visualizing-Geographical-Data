@@ -59,23 +59,61 @@ print(time.time()-t2)
 
 
 #Interpolation Function on the gpu
-def SmoothGpu(points, Mode, doAgenda, legendVerticalAlignment, legendPlacement, legendOffset,  legendScale, legendSteps, legendTextScale, legendRoundDataTo, legendUnits):
-    t1 = time.time()
+def Interpolate(points, settings):
+
+    
     points=np.array(points)
     creator = Interpolation.interpolateRandomGpu(True)
-    print(time.time()-t1)
-    t1 = time.time()
-    creator.createPixelBuffer(image.size, Image=image)
-    print(time.time()-t1)
-    t1 = time.time()
-    m, l = creator.createTriangles(points=points, Mode=Mode, showTriangles=False)[1:]
-    print(time.time()-t1)
-    t = time.time()
-    res = creator.compute()
-    print(time.time()-t, time.time()-t1)
     
-    if doAgenda == True:
-        AgendaObj = CreateLegend((l, m), Mode, image.size, legendScale, legendSteps,  legendTextScale, legendRoundDataTo, legendUnits)
+    creator.createPixelBuffer(image.size, Image=image)
+
+    m, l = creator.createTriangles(points=points, Mode=settings["Mode"], showTriangles=False)[1:]
+
+    res = creator.compute()
+    
+    if settings["CreateLegend"] == True:
+        barSize = round(dimentions[1]/(1.5*steps - 0.5)*scale)
+        Legend = np.zeros((round(steps*barSize*1.5-barSize*0.5), 3*barSize, 4), dtype=np.uint8)
+
+        units = ' '+units
+
+        textLegend = np.zeros((round(steps*barSize*1.5-barSize*0.5), round(barSize*0.59*textScale*(textRound+len(str(round(lenth[1]))+units)))+10 + (8 if textRound != 0 else 0), 4), dtype=np.uint8)
+
+        print(barSize*textScale, 'wad')
+        imText = PIL.Image.fromarray(textLegend)
+        drawText = PIL.ImageDraw.Draw(imText)
+
+        font = PIL.ImageFont.truetype("arial.ttf", round(barSize*textScale))
+
+        for i in range(steps):
+
+            barsColor = None
+            if Mode == 0:
+                val = round(255*(i/(steps-1)))
+
+                barsColor = np.array([val, val, val, 255])
+                #print(barsColor, round(1.5*barSize*(steps-1-i)+barSize), round(1.5*barSize*(steps-1-i)), i/(steps-1), agenda.shape)
+            elif Mode == 1:
+                k = i/(steps-1)*4
+
+                if k >= 2.7:
+                    barsColor = np.array([255, (4-k)*255/1.3, 0, 255])
+                elif k >= 2 and k < 2.7:
+                    barsColor = np.array([(k-2)*255/4/0.7, 255, 0, 255])
+                elif k >= 1.3 and k < 2:
+                    barsColor = np.array([0, 255, (2-k)*255/0.7, 255])
+                elif k < 1.3:
+                    barsColor = np.array([0, k*255/1.3, 255, 255])
+                print(k)
+
+
+            Legend[round(1.5*barSize*(steps-1-i)):round(1.5*barSize*(steps-1-i)+barSize), :barSize*3] = barsColor
+
+            drawText.text((0,round(1.5*barSize*(steps-1-i)+((barSize-(barSize*textScale))/2))), " "+str(round((i/(steps-1))*(lenth[1]-lenth[0])+lenth[0], textRound))+units, font=font)
+
+        textLegend = np.array(imText)
+        out = np.concatenate((Legend, textLegend), axis=1, dtype=np.uint8)
+        AgendaObj = CreateLegend((l, m), settings["Mode"], image.size, legendScale, legendSteps,  legendTextScale, legendRoundDataTo, legendUnits)
         #print(np.zeros((round((image.size[1]-AgendaObj.shape[0])*legendVerticalAlignment),  AgendaObj.shape[1], 4)).shape, AgendaObj.shape, np.zeros((round((image.size[1]-AgendaObj.shape[0])*(1-legendVerticalAlignment)),  AgendaObj.shape[1], 4)).shape,(image.size[1]-AgendaObj.shape[0])*legendVerticalAlignment, image.size[0])
         AgendaObj = np.concatenate( ( np.zeros((round((image.size[1]-AgendaObj.shape[0])*legendVerticalAlignment),  AgendaObj.shape[1], 4), dtype = np.uint8),\
         AgendaObj, np.zeros((image.size[1] - round((image.size[1]-AgendaObj.shape[0])*legendVerticalAlignment+AgendaObj.shape[0]),  AgendaObj.shape[1], 4),  dtype = np.uint8)))
@@ -160,7 +198,7 @@ def ShowPoints(Points):
 t = time.time()
 cpuArr = InterpolateRandomCpu(mapData)
 print(time.time()-t)
-#arr = SmoothGpu(mapData, settings["Mode"], settings["CreateLegend"], settings["LegendVerticalAlignment"], 0 if settings["LegendHorizontalAlignment"].lower() == "left" else 1,\
-#    settings["LegendOffsetFromMap"], settings["LegendScale"], settings["LegendSteps"], settings["LegendTextScale"], settings["LegendRoundDataTo"], settings["LegendUnits"])
+arr = Interpolate(mapData, settings["Mode"], settings["CreateLegend"], settings["LegendVerticalAlignment"], 0 if settings["LegendHorizontalAlignment"].lower() == "left" else 1,\
+    settings["LegendOffsetFromMap"], settings["LegendScale"], settings["LegendSteps"], settings["LegendTextScale"], settings["LegendRoundDataTo"], settings["LegendUnits"], settings = settings)
 PIL.Image.fromarray(cpuArr).show()
 
