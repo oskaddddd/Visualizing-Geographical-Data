@@ -94,7 +94,7 @@ def InterpolateRandomCpu(points):
     points = np.array(points)
     create = Interpolation.interpolateRandomCpu()
     #print(create.createPixels(image.size, Image=image))
-    return create.createTriangles(points, image.size)
+    return create.createTriangles(points, image.size, True, Image=np.array(image))
     
 
 def CreateLegend(lenth, Mode, dimentions, scale, steps, textScale, textRound, units):
