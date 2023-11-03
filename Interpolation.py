@@ -184,8 +184,7 @@ class interpolateRandomCpu():
         '''Modes:\n
         0 - Black and White (white - high, black - low)\n
         1 - RGB (Red - high, Green - mid, Blue - low)\n
-        2 - RG (Green - high, Red - Low)\n
-        3 - RB (Red - high, Blue - low)'''
+        2 - RG (Green - high, Red - Low)'''
         
         #ogPoints = points.copy()
         p = points[:, 2]
@@ -281,8 +280,31 @@ class interpolateRandomCpu():
                     a = abs(triangle[0][0]*(triangle[1][1]-y) + triangle[1][0]*(y-triangle[0][1]) + x*(triangle[0][1]-triangle[1][1]))
                     b = abs(triangle[0][0]*(y-triangle[2][1]) + x*(triangle[2][1]-triangle[0][1]) + triangle[2][0]*(triangle[0][1]-y))
                     c = abs(x*(triangle[1][1]-triangle[2][1]) + triangle[1][0]*(triangle[2][1]-y) + triangle[2][0]*(y-triangle[1][1]))
-                    val = round(((triangle[2][2]*a+triangle[1][2]*b+triangle[0][2]*c)/(a+b+c)-l)/dif)
-                    imageOutput[y][x] = np.array([val, val, val, 255])
+                    val = (triangle[2][2]*a+triangle[1][2]*b+triangle[0][2]*c)/(a+b+c)
+                    if Mode == 0:
+                        val = (val-l)/dif
+                        imageOutput[y][x] = np.array([val, val, val, 255])
+                    elif Mode == 1:
+                        val-=l
+                        out = np.array((0, 0, 0, 255))
+                        p = (m-l)*0.25
+
+                        if (val >= p*2.7):
+                            out[1] = round((((p*4)-val)/(p*1.3))*255)
+                            out[0] = 255
+                        
+                        elif (val >= p*2 and val < p*2.7):
+                            out[0] = round(((val-p*2)/(p*0.7))*255)
+                            out[1] = 255
+                        
+                        elif(val >= p*1.3 and val < p*2):
+                            out[2] = round(((2*p-val)/(p*0.7))*255)
+                            out[1] = 255
+                        
+                        if (val < p*1.3):
+                            out[1] = round((val/(p*1.3))*255)
+                            out[2] = 255
+                        imageOutput[y][x] = out
 
                 #ranges[i] = np.array((x, math.ceil(k01*x+r01), math.floor(k02*x+r02)))
                 i+=1
@@ -301,9 +323,35 @@ class interpolateRandomCpu():
                     a = abs(triangle[0][0]*(triangle[1][1]-y) + triangle[1][0]*(y-triangle[0][1]) + x*(triangle[0][1]-triangle[1][1]))
                     b = abs(triangle[0][0]*(y-triangle[2][1]) + x*(triangle[2][1]-triangle[0][1]) + triangle[2][0]*(triangle[0][1]-y))
                     c = abs(x*(triangle[1][1]-triangle[2][1]) + triangle[1][0]*(triangle[2][1]-y) + triangle[2][0]*(y-triangle[1][1]))
-                    val = round(((triangle[2][2]*a+triangle[1][2]*b+triangle[0][2]*c)/(a+b+c)-l)/dif)
+                    val = (triangle[2][2]*a+triangle[1][2]*b+triangle[0][2]*c)/(a+b+c)
                     #print(val)
-                    imageOutput[y][x] = np.array([val, val, val, 255])
+                    if Mode == 0:
+                        val = round((val-l)/dif)
+                        imageOutput[y][x] = np.array([val, val, val, 255])
+                    elif Mode == 1:
+                        val-=l
+                        out = np.array((0, 0, 0, 255))
+                        p = (m-l)*0.25
+
+                        if (val >= p*2.7):
+                            out[1] = round((((p*4)-val)/(p*1.3))*255)
+                            out[0] = 255
+                        
+                        elif (val >= p*2 and val < p*2.7):
+                            out[0] = round(((val-p*2)/(p*0.7))*255)
+                            out[1] = 255
+                        
+                        elif(val >= p*1.3 and val < p*2):
+                            out[2] = round(((2*p-val)/(p*0.7))*255)
+                            out[1] = 255
+                        
+                        if (val < p*1.3):
+                            out[1] = round((val/(p*1.3))*255)
+                            out[2] = 255
+                        imageOutput[y][x] = out
+                        
+
+
                 #ranges[i] = np.array((x, math.ceil(k12*x+r12), math.floor(k02*x+r02)))
                 i+=1
             #print(triangle)
@@ -315,7 +363,7 @@ class interpolateRandomCpu():
         #output = np.array(output)
         
         self.triangles = output
-        return imageOutput
+        return (imageOutput, m, l)
 
 
 class interpolateSquaresNumpy():
