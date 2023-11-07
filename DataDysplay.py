@@ -57,6 +57,8 @@ for x in data:
     n = Decode(x["GPS"])
     mapData.append([n[0], n[1], x["Value"]])
 
+print(time.time()-t2, 'tdttddt')
+
 
 #Interpolation Function on the gpu
 def Interpolate(points):
@@ -74,14 +76,14 @@ def Interpolate(points):
         res = creator.compute()
     else:
         creator = Interpolation.interpolateRandomCpu()
-        o = creator.createTriangles(points, image.size, True, Image=np.array(image), Mode=Mode)
+        o = creator.createTriangles(points, image.size, True, Image=np.array(image), Mode=Mode, doSectioning=settings["SectionMap"], sections=settings["Sections"])
         res = o[0]
         lenth = (o[1], o[2])
 
     print(time.time()-t)
     
     if settings["CreateLegend"] == True:
-        steps = settings["LegendSteps"]
+        steps = settings["Sections"]
         textScale = settings["LegendTextScale"]
 
 

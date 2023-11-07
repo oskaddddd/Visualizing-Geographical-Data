@@ -178,13 +178,14 @@ class interpolateRandomGpu():
 
 class interpolateRandomCpu():
 
-    def createTriangles(self, points, resolution, clip = True, Image = None, Mode = 0):
+    def createTriangles(self, points, resolution, clip = True, Image = None, Mode = 0, doSectioning = False, sections = 4):
         
 
         '''Modes:\n
         0 - Black and White (white - high, black - low)\n
         1 - RGB (Red - high, Green - mid, Blue - low)\n
         2 - RG (Green - high, Red - Low)'''
+        
         
         #ogPoints = points.copy()
         p = points[:, 2]
@@ -195,6 +196,13 @@ class interpolateRandomCpu():
         m = math.ceil(max(p))
         l = math.floor(min(p))
         dif = (m-l)/255
+
+        sectionList = np.empty((6), dtype=np.int64)
+        if doSectioning:
+            sectionList[0:sections-1] = np.arange(0, m-l, (m-l)/(sections-1), dtype=np.uint8)
+            sectionList[sections-1] = m-l
+
+        print(sectionList, m-l)
 
         tri = Delaunay(points)
         
@@ -245,26 +253,7 @@ class interpolateRandomCpu():
             xRanges = [middle(0, triangle[0][0], resolution[0]), \
                     middle(0, triangle[1][0], resolution[0]), \
                     middle(0, triangle[2][0], resolution[0])]
-            #x, y01/y02, y02
-            #ranges = np.zeros(shape = (xRanges[2]-xRanges[0]+1, 3), dtype=np.uint8)
-
-            #if k01 == None and triangle[1][0] < resolution[0]:
-            #    #ranges[0] = np.array([triangle[0][0], triangle[0][1], triangle[1][1]])
-            #    yList = np.arange(middle(0, triangle[0][1], resolution[1]-1), middle(0, triangle[1][1], resolution[1]-1))
-#
-            #    for y in yList:
-            #        val = triangle[0][2]
-            #        imageOutput[y][triangle[1][0]] = np.array([val, val, val, 255])
-            #if k12 == None and triangle[1][0] < resolution[0]:
-            #    yList = np.arange(middle(0, triangle[1][1], resolution[1]-1), middle(0, triangle[2][1], resolution[1]-1))
-            #    #if yList.shape[0]>0:
-            #    #    print(yList[0], yList[yList.shape[0]-1], "ylistRanges")
-#
-            #    for y in yList:
-            #        val = triangle[0][2]
-            #        imageOutput[y][triangle[1][0]] = np.array([val, val, val, 255])
-            i = 0
-            #print(xRanges)
+           
 
             for x in range(xRanges[0], xRanges[1]):
                 yRange = [middle(0, math.ceil(k01*x+r01), resolution[1]), middle(0, math.ceil(k02*x+r02), resolution[1])]
@@ -281,6 +270,7 @@ class interpolateRandomCpu():
                     b = abs(triangle[0][0]*(y-triangle[2][1]) + x*(triangle[2][1]-triangle[0][1]) + triangle[2][0]*(triangle[0][1]-y))
                     c = abs(x*(triangle[1][1]-triangle[2][1]) + triangle[1][0]*(triangle[2][1]-y) + triangle[2][0]*(y-triangle[1][1]))
                     val = (triangle[2][2]*a+triangle[1][2]*b+triangle[0][2]*c)/(a+b+c)
+                    val = sectionList[(np.abs(sectionList - val)).argmin()]
                     if Mode == 0:
                         val = (val-l)/dif
                         imageOutput[y][x] = np.array([val, val, val, 255])
@@ -324,6 +314,7 @@ class interpolateRandomCpu():
                     b = abs(triangle[0][0]*(y-triangle[2][1]) + x*(triangle[2][1]-triangle[0][1]) + triangle[2][0]*(triangle[0][1]-y))
                     c = abs(x*(triangle[1][1]-triangle[2][1]) + triangle[1][0]*(triangle[2][1]-y) + triangle[2][0]*(y-triangle[1][1]))
                     val = (triangle[2][2]*a+triangle[1][2]*b+triangle[0][2]*c)/(a+b+c)
+                    val = sectionList[(np.abs(sectionList - val)).argmin()]
                     #print(val)
                     if Mode == 0:
                         val = round((val-l)/dif)

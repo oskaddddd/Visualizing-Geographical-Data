@@ -6,9 +6,11 @@
     "LegendHorizontalAlignment": "right",
     "LegendOffsetFromMap": 30,
     "LegendScale": 0.5,
-    "LegendSteps": 6,
+    "Sections": 6,
     "LegendTextScale": 0.7,
     "LegendRoundDataTo": 1,
     "LegendUnits": "m/s",
-    "Computation": "cpu"
+    "Computation": "cpu",
+    "SectionMap":true
+    
 }
