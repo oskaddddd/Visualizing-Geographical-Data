@@ -270,7 +270,8 @@ class interpolateRandomCpu():
                     b = abs(triangle[0][0]*(y-triangle[2][1]) + x*(triangle[2][1]-triangle[0][1]) + triangle[2][0]*(triangle[0][1]-y))
                     c = abs(x*(triangle[1][1]-triangle[2][1]) + triangle[1][0]*(triangle[2][1]-y) + triangle[2][0]*(y-triangle[1][1]))
                     val = (triangle[2][2]*a+triangle[1][2]*b+triangle[0][2]*c)/(a+b+c)
-                    val = sectionList[(np.abs(sectionList - val)).argmin()]
+                    if doSectioning:
+                        val = sectionList[(np.abs(sectionList - val)).argmin()]
                     if Mode == 0:
                         val = (val-l)/dif
                         imageOutput[y][x] = np.array([val, val, val, 255])
@@ -314,7 +315,8 @@ class interpolateRandomCpu():
                     b = abs(triangle[0][0]*(y-triangle[2][1]) + x*(triangle[2][1]-triangle[0][1]) + triangle[2][0]*(triangle[0][1]-y))
                     c = abs(x*(triangle[1][1]-triangle[2][1]) + triangle[1][0]*(triangle[2][1]-y) + triangle[2][0]*(y-triangle[1][1]))
                     val = (triangle[2][2]*a+triangle[1][2]*b+triangle[0][2]*c)/(a+b+c)
-                    val = sectionList[(np.abs(sectionList - val)).argmin()]
+                    if doSectioning:
+                        val = sectionList[(np.abs(sectionList - val)).argmin()]
                     #print(val)
                     if Mode == 0:
                         val = round((val-l)/dif)

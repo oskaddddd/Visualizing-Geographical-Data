@@ -11,6 +11,6 @@
     "LegendRoundDataTo": 1,
     "LegendUnits": "m/s",
     "Computation": "cpu",
-    "SectionMap":true
+    "SectionMap":false
     
 }
