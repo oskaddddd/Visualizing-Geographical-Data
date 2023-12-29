@@ -65,15 +65,20 @@ def Interpolate(points):
     print(1)
     t = time.time()
     
-    points=np.array(points)
+    points=np.array(points, dtype=np.uint16)
     Mode = settings["Mode"]
     lenth = None
     res = None
     if settings["Computation"].lower() == 'opencl':
-        creator = Interpolation.interpolateRandomGpu(True)
-        creator.createPixelBuffer(image.size, Image=image)
-        lenth = (creator.createTriangles(points=points, Mode=Mode, showTriangles=False)[1:])
-        res = creator.compute()
+        if settings["Interpolation"].lower() == 'idw':
+            creator = Interpolation.InterpolationIDW_GPU(False)
+            creator.createBuffers(image.size, points)
+            creator.compute()
+        else:
+            creator = Interpolation.interpolateRandomGpu(True)
+            creator.createPixelBuffer(image.size, Image=image)
+            lenth = (creator.createTriangles(points=points, Mode=Mode, showTriangles=False)[1:])
+            res = creator.compute()
     else:
         creator = Interpolation.interpolateRandomCpu()
         o = creator.createTriangles(points, image.size, True, Image=np.array(image), Mode=Mode, doSectioning=settings["SectionMap"], sections=settings["Sections"])

@@ -17,7 +17,6 @@ kernel void Bilinear(global int *triangles, global int *out, global int *data, g
             float a1 = fabs((float)g0*(tri[4]-tri[7]) + tri[3]*(tri[7]-g1) + tri[6]* (g1-tri[4]));
             float a2 = fabs((float)tri[0]*(g1-tri[7]) + g0*(tri[7]-tri[1]) + tri[6]* (tri[1]-g1));
             float a3 = fabs((float)tri[0]*(tri[4]-g1) + tri[3]*(g1-tri[1]) + g0* (tri[1]-tri[4]));
-            
             if(fabs((a1 + a2 + a3) -a) < 0.0001){
                 int A = tri[2];
                 int B = tri[5];

@@ -1,16 +1,16 @@
 {
     "ImageName": "mask1.png",
     "Mode": 1,
-    "CreateLegend": true,
+    "CreateLegend": false,
     "LegendVerticalAlignment": 0.9,
     "LegendHorizontalAlignment": "right",
     "LegendOffsetFromMap": 30,
     "LegendScale": 0.5,
-    "Sections": 6,
+    "Sections":10,
     "LegendTextScale": 0.7,
     "LegendRoundDataTo": 1,
     "LegendUnits": "m/s",
-    "Computation": "cpu",
-    "SectionMap":false
-    
+    "Computation": "opencl",
+    "SectionMap":false,
+    "Interpolation": "IDW"
 }
