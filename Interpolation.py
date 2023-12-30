@@ -62,6 +62,7 @@ class interpolateRandomGpu():
         #output = np.array(output)
         
         self.triangles = output
+        print(output.dtype)
         self.triBuffer = cl.Buffer(self.ctx, flags = self.mf.READ_ONLY, size = output.nbytes)
         cl.enqueue_copy(self.queue, self.triBuffer, self.triangles)
         
@@ -273,19 +274,32 @@ class InterpolationIDW_GPU():
         self.ctx = cl.create_some_context(interactive=interactive)
         self.queue = cl.CommandQueue(self.ctx)
         self.mf = cl.mem_flags
-    def createBuffers(self, resolution = None, Points = None) -> list: #width, height
-        #self.resolution = np.array((len(Points), resolution[0], resolution[1]), dtype=np.uint16)
-        self.resolution = np.array((5, 5, 5), dtype=np.uint16)
-        
-        self.dist = np.zeros(self.resolution, dtype=np.uint16)
+    def createBuffers(self, resolution = None, Points = None, MaxPPP = None) -> list: #width, height
+        #resolution = [2, 4]
+        MaxPPP = 3
+        self.resolution = resolution
+        #Check if max points per pixel is more than there are points, This helps reduce memory usage in some cases
+        if MaxPPP == None:
+            MaxPPP = len(Points)
+        elif MaxPPP > len(Points):
+            MaxPPP = len(Points)
+            
+        #Dimentions of the distance data - known points; y; x;
+        #Create array to store distances form pixels to known points
+        self.dist = np.full((MaxPPP, resolution[0], resolution[1], 2),-1, dtype=np.float32)
         print(self.dist.nbytes)
+        
+        Points = Points.astype(np.int16)
+        
+        #Create the buffers
         self.distBuffer = cl.Buffer(self.ctx, flags = self.mf.READ_WRITE, size = self.dist.nbytes)
-        
         self.pointsBuffer = cl.Buffer(self.ctx, flags = self.mf.READ_ONLY, size = Points.nbytes)
-        self.resBuffer = cl.Buffer(self.ctx, flags = self.mf.READ_ONLY, size = self.resolution.nbytes)
+        self.distShapeBuffer = cl.Buffer(self.ctx, flags = self.mf.READ_ONLY, size = np.array((MaxPPP, resolution[0], resolution[1], len(Points)), dtype=np.uint16).nbytes)
         
+        print(self.dist.nbytes*10**-9)
+        #Copy the data to buffers in memory
         cl.enqueue_copy(self.queue, self.pointsBuffer, Points)
-        cl.enqueue_copy(self.queue, self.resBuffer, self.resolution)
+        cl.enqueue_copy(self.queue, self.distShapeBuffer, np.array(self.dist.shape, dtype=np.uint16))
     
 
     
@@ -296,7 +310,7 @@ class InterpolationIDW_GPU():
             
         prg = cl.Program(self.ctx, programSource).build()
         
-        prg.CalculateDistances(self.queue, self.resolution, None, self.resBuffer, self.pointsBuffer, self.distBuffer)
+        prg.CalculateDistances(self.queue, (self.resolution[0], self.resolution[1]), None, self.distShapeBuffer, self.pointsBuffer, self.distBuffer)
 
         cl.enqueue_copy(self.queue, self.dist, self.distBuffer)
         print(self.dist)

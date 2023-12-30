@@ -1,11 +1,19 @@
-kernel void CalculateDistances(global int *r, global int *points, global int *out) {
-    int p = get_global_id(0);
-    int y = get_global_id(1);
-    int x = get_global_id(2);
-    //rp, ry, rx
-    int i = (r[2] * r[1] * p) + (r[2] * y) + x;
+#define DistI(PointLayer, section) ((r[1]*r[2]*2*PointLayer)+i+section)
 
-    out[i] = r[1];
+kernel void CalculateDistances(
+    //rmpp, ry, rx, rp
+    global ushort  *r,
+    global short *points, 
+    global float *out) {
+
+    int y = get_global_id(0);
+    int x = get_global_id(1);
+    
+    int i = (r[2] * y*2) + (x*2);
+    //indexing
+    out[i] = y;
+    out[DistI(2, 0)] = x;
+    out[DistI(1, 1)] = 69;
 
 
 }

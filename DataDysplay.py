@@ -63,19 +63,21 @@ print(time.time()-t2, 'tdttddt')
 #Interpolation Function on the gpu
 def Interpolate(points):
     print(1)
-    t = time.time()
+
     
-    points=np.array(points, dtype=np.uint16)
+    points=np.array(points)
     Mode = settings["Mode"]
     lenth = None
     res = None
+    
+    t = time.time()
     if settings["Computation"].lower() == 'opencl':
         if settings["Interpolation"].lower() == 'idw':
             creator = Interpolation.InterpolationIDW_GPU(False)
             creator.createBuffers(image.size, points)
             creator.compute()
         else:
-            creator = Interpolation.interpolateRandomGpu(True)
+            creator = Interpolation.interpolateRandomGpu(False)
             creator.createPixelBuffer(image.size, Image=image)
             lenth = (creator.createTriangles(points=points, Mode=Mode, showTriangles=False)[1:])
             res = creator.compute()
